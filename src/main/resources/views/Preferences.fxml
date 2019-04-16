@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane fx:id="root" minWidth="720"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.smallcold.hosts.view.controller.PreferencesController">
+    <center>
+        <TabPane>
+            <Tab closable="false" text="%key.remote-tab">
+                <HBox>
+                    <TableView fx:id="remoteHostsTableView">
+                        <columns>
+                            <TableColumn prefWidth="50" text="%key.enable"/>
+                            <TableColumn prefWidth="150" text="%key.name"/>
+                            <TableColumn prefWidth="200" text="%key.url"/>
+                            <TableColumn editable="false" prefWidth="100" text="%key.category"/>
+                        </columns>
+                    </TableView>
+                    <VBox styleClass="remote-preference-opt">
+                        <CheckBox styleClass="checkbox" text="%key.remote-clear-checkbox-title"/>
+                        <Button styleClass="add-btn" text="新增"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+        </TabPane>
+    </center>
+    <bottom>
+        <ToolBar styleClass="preference-btn">
+            <Button cancelButton="true" mnemonicParsing="false" text="%key.cancel-btn"/>
+            <Button defaultButton="true" ellipsisString="%key.save-btn" text="%key.save-btn"/>
+        </ToolBar>
+    </bottom>
+</BorderPane>

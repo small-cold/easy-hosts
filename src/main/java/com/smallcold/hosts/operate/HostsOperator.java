@@ -35,6 +35,10 @@ public class HostsOperator {
 
     @Getter
     @Setter
+    private String text;
+
+    @Getter
+    @Setter
     private boolean isChanged = false;
 
     /**
@@ -93,13 +97,16 @@ public class HostsOperator {
             return hostBeanList;
         }
         try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+            StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
                 for (HostBean hostBean : HostBean.build(line)) {
                     hostBean.setId(hostBeanList.size());
                     hostBeanList.add(hostBean);
                 }
             }
+            text = stringBuilder.toString();
         } catch (IOException e) {
             LOGGER.error("读取Hosts文件发生错误 file=" + file, e);
         }
@@ -128,7 +135,7 @@ public class HostsOperator {
      * @return
      */
     public List<HostsSearchResult> search(String key) {
-        if (StringUtils.isBlank(key)){
+        if (StringUtils.isBlank(key)) {
             return Collections.emptyList();
         }
         key = key.toLowerCase();
@@ -140,18 +147,18 @@ public class HostsOperator {
                     || isDisable && hostBean.isEnable()) {
                 continue;
             }
-            if (domainList.contains(hostBean.getDomain())){
+            if (domainList.contains(hostBean.getDomain())) {
                 HostsSearchResult hostsSearchResult = new HostsSearchResult(this, hostBean);
                 hostsSearchResult.setScore(-1);
                 matchHostBeanList.add(hostsSearchResult);
-            }else if (hostBean.getDomain().toLowerCase().contains(key)) {
+            } else if (hostBean.getDomain().toLowerCase().contains(key)) {
                 HostsSearchResult hostsSearchResult = new HostsSearchResult(this, hostBean);
                 hostsSearchResult.setScore(hostBean.getDomain().indexOf(key));
                 matchHostBeanList.add(hostsSearchResult);
             }
         }
         matchHostBeanList.sort((result, resultOther) -> {
-            if (result.getScore() != resultOther.getScore()){
+            if (result.getScore() != resultOther.getScore()) {
                 return result.getScore() - resultOther.getScore();
             }
             return result.getTitle().compareTo(resultOther.getTitle());
@@ -164,7 +171,7 @@ public class HostsOperator {
      *
      * @param hostBean
      */
-    public boolean saveHost(HostBean hostBean){
+    public boolean saveHost(HostBean hostBean) {
         if (hostBean == null || getHostBeanList().contains(hostBean)) {
             return false;
         }
@@ -179,7 +186,7 @@ public class HostsOperator {
         return true;
     }
 
-    public void changeStatus(String ipStr, String domain, boolean enable){
+    public void changeStatus(String ipStr, String domain, boolean enable) {
         if (enable) {
             enable(IPDomainUtil.ipToLong(ipStr), domain);
         } else {
@@ -187,7 +194,7 @@ public class HostsOperator {
         }
     }
 
-    private void disable(long ip, String domain){
+    private void disable(long ip, String domain) {
         if (StringUtils.isBlank(domain)) {
             throw new RuntimeException("禁用域名不能为空");
         }
@@ -206,7 +213,7 @@ public class HostsOperator {
         }
     }
 
-    private void enable(long ip, String domain){
+    private void enable(long ip, String domain) {
         if (ip < 0) {
             throw new RuntimeException("启用IP无效");
         }
@@ -247,7 +254,7 @@ public class HostsOperator {
      * @param otherHostsOperator
      * @param isBackup
      */
-    public void switchTo(HostsOperator... hostsOperators){
+    public void switchTo(HostsOperator... hostsOperators) {
         if (hostsOperators == null) {
             return;
         }
@@ -304,23 +311,23 @@ public class HostsOperator {
         return IPSet;
     }
 
-    public boolean enable(int i, boolean enable){
+    public boolean enable(int i, boolean enable) {
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
         HostBean hostBean = hostBeanList.get(i);
-        if (hostBean.isEnable() == enable){
+        if (hostBean.isEnable() == enable) {
             return true;
         }
-        if (enable){
+        if (enable) {
             enable(hostBean.getIp(), hostBean.getDomain());
-        }else {
+        } else {
             disable(hostBean.getIp(), hostBean.getDomain());
         }
         return true;
     }
 
-    public boolean saveDomain(int i, @NonNull String domain){
+    public boolean saveDomain(int i, @NonNull String domain) {
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
@@ -341,7 +348,7 @@ public class HostsOperator {
         return false;
     }
 
-    public boolean saveIp(int i, @NonNull String ipStr){
+    public boolean saveIp(int i, @NonNull String ipStr) {
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }
@@ -365,7 +372,7 @@ public class HostsOperator {
         return getHostBeanList().get(i);
     }
 
-    public boolean saveComment(int i, String newValue){
+    public boolean saveComment(int i, String newValue) {
         if (i < 0 || i >= hostBeanList.size()) {
             return false;
         }

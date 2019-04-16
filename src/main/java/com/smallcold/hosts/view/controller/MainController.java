@@ -19,10 +19,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +35,9 @@ import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.InlineCssTextArea;
+import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-/*
+/**
  * Created by smallcold on 2017/9/4.
  */
 public class MainController implements Initializable {
@@ -51,28 +55,20 @@ public class MainController implements Initializable {
 
     @FXML
     @Getter
-    public BorderPane root;
+    private BorderPane root;
     @FXML
-    public Label messageLabel;
+    private Label messageLabel;
     @FXML
-    public Label errorMessageLabel;
+    private Label errorMessageLabel;
     @FXML
-    public TableView<HostProperty> hostsTableView;
+    private InlineCssTextArea area;
+    @FXML
+    private VirtualizedScrollPane<InlineCssTextArea> hostsEditorVsPane;
 
     @FXML
-    public TableColumn<HostProperty, Boolean> enableCol;
-
+    private TreeView<HostsOperatorProperty> hostsFileTreeView;
     @FXML
-    public TableColumn<HostProperty, String> ipCol;
-    @FXML
-    public TableColumn<HostProperty, String> domainCol;
-    @FXML
-    public TableColumn<HostProperty, String> commentCol;
-
-    @FXML
-    public TreeView<HostsOperatorProperty> hostsFileTreeView;
-    @FXML
-    public SearchBox searchBox;
+    private SearchBox searchBox;
 
     @FXML
     private SearchPopover searchPopover;
@@ -80,9 +76,9 @@ public class MainController implements Initializable {
     private Map<HostsOperator, TreeItem<HostsOperatorProperty>> treeItemMap = Maps.newHashMap();
 
     @FXML
-    public TreeItem<HostsOperatorProperty> sysHostsOperatorTreeItem;
+    private TreeItem<HostsOperatorProperty> sysHostsOperatorTreeItem;
     @FXML
-    public TreeItem<HostsOperatorProperty> rootTreeItem;
+    private TreeItem<HostsOperatorProperty> rootTreeItem;
 
     public MainController setHostsOperator(HostsOperator hostsOperator) {
         if (hostsOperator != null) {
@@ -111,39 +107,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        enableCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
-            if (CollectionUtils.isEmpty(hostList)) {
-                return null;
-            }
-            HostProperty hostProperty = hostList.get(param);
-            try {
-                hostsOperator.enable(hostProperty.idProperty().get(), hostProperty.enableProperty().getValue());
-                if (hostsOperator.isChanged()) {
-                    hostsOperator.flush();
-                }
-            } catch (IOException e) {
-                hostProperty.enableProperty().setValue(!hostProperty.enableProperty().get());
-                callbackObjectProperty.getValue().call(e);
-                LOGGER.error("保存hosts状态失败", e);
-            }
-            return hostProperty.enableProperty();
-        }));
-        StringConverter<String> sc = new StringConverter<String>() {
-            @Override
-            public String toString(String t) {
-                return t;
-            }
-
-            @Override
-            public String fromString(String string) {
-                return string;
-            }
-        };
-        ipCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
-        domainCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
-        commentCol.setCellFactory(TextFieldTableCell.forTableColumn(sc));
         refreshData();
-
         hostsFileTreeView.setShowRoot(false);
         rootTreeItem.setExpanded(true);
         initHostsOperatorTree();
@@ -164,7 +128,8 @@ public class MainController implements Initializable {
         activeShowSysHosts();
         hostsFileTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // 应该在这里调用
-            if (observable != null && observable.getValue() != null){
+            if (observable != null && observable.getValue() != null) {
+                LOGGER.debug("点击文件节点");
                 refreshCurrentHostsOperator(observable.getValue().getValue());
             }
         });
@@ -191,7 +156,7 @@ public class MainController implements Initializable {
     }
 
     public void requestFocus() {
-        hostsTableView.requestFocus();
+        hostsEditorVsPane.requestFocus();
     }
 
     public void activeShowSysHosts() {
@@ -201,8 +166,8 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    public void refreshHostsTable(MouseEvent mouseEvent) {
-        // 单击，刷新table
+    public void refreshHostsEditor(MouseEvent mouseEvent) {
+        // 单击，刷新 Editor
         if (mouseEvent.getSource() == hostsFileTreeView
                 && hostsFileTreeView.getSelectionModel().getSelectedItem() != null) {
             HostsOperatorProperty hostsOperatorProperty = hostsFileTreeView.getSelectionModel().getSelectedItem()
@@ -282,12 +247,15 @@ public class MainController implements Initializable {
             hostList.add(new HostProperty(hostBean));
         }
         final ObservableList<HostProperty> data = FXCollections.observableArrayList(
-                hostProperty -> new Observable[] { hostProperty.enableProperty() });
+                hostProperty -> new Observable[]{hostProperty.enableProperty()});
         data.addAll(hostList);
-        hostsTableView.setEditable(!getHostsOperator().isOnlyRead());
-        hostsTableView.setItems(data);
-        hostsTableView.refresh();
-        // hostsTableView.requestFocus();
+        if (getHostsOperator().getText() != null) {
+            area.replace(0, area.getText().length(), ReadOnlyStyledDocument.fromString(getHostsOperator().getText(),
+                    area.getInitialParagraphStyle(), area.getInitialTextStyle(), area.getSegOps()));
+        } else {
+            area.replace(0, area.getText().length(), ReadOnlyStyledDocument.fromString("",
+                    area.getInitialParagraphStyle(), area.getInitialTextStyle(), area.getSegOps()));
+        }
     }
 
     public Map<HostsOperator, List<HostsSearchResult>> search(String key) {
@@ -342,12 +310,12 @@ public class MainController implements Initializable {
             int index = 0;
             for (HostProperty hostProperty : hostList) {
                 if (hostProperty.idProperty().get() == result.getId()) {
-                    hostsTableView.getSelectionModel().select(hostProperty);
-                    hostsTableView.scrollTo(index > 6 ? index - 2 : 0);
-                    // hostsTableView.getFocusModel().focus(index);
-                    hostsTableView.setFocusTraversable(true);
+                    // hostsTableView.getSelectionModel().select(hostProperty);
+                    // hostsTableView.scrollTo(index > 6 ? index - 2 : 0);
+                    // // hostsTableView.getFocusModel().focus(index);
+                    hostsEditorVsPane.setFocusTraversable(true);
                     Platform.runLater(() -> {
-                        hostsTableView.requestFocus();
+                        hostsEditorVsPane.requestFocus();
                     });
                     break;
                 }
