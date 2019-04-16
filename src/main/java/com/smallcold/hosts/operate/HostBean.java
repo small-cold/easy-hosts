@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.List;
 
-/*
+/**
  * Created by smallcold on 2017/9/1.
  */
 public class HostBean {
