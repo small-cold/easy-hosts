@@ -3,19 +3,16 @@
 <?import com.smallcold.hosts.view.SearchBox?>
 <?import com.smallcold.hosts.view.SearchPopover?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
-<?import org.fxmisc.richtext.InlineCssTextArea?>
-<BorderPane fx:id="root" fx:controller="com.smallcold.hosts.view.controller.MainController"
-            xmlns:fx="http://javafx.com/fxml"
-            onKeyPressed="#rootKeyPressed">
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+<BorderPane fx:id="root" onKeyPressed="#rootKeyPressed" stylesheets="@/css/HostsHelper.css"
+            xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.smallcold.hosts.view.controller.MainController">
     <left>
-        <VBox>
-            <TreeView fx:id="hostsFileTreeView" prefWidth="120" prefHeight="455" onMouseClicked="#refreshHostsEditor"
-                      onKeyPressed="#treeKeyPressed" editable="true">
+        <VBox alignment="CENTER_LEFT">
+            <TreeView fx:id="hostsFileTreeView" editable="true" onKeyPressed="#treeKeyPressed"
+                      onMouseClicked="#refreshHostsEditor" styleClass="file-tree" VBox.vgrow="ALWAYS">
                 <TreeItem fx:id="rootTreeItem">
                     <children>
                         <TreeItem fx:id="sysHostsOperatorTreeItem"/>
@@ -25,20 +22,25 @@
         </VBox>
     </left>
     <center>
-        <AnchorPane>
-            <SearchBox fx:id="searchBox" prefWidth="600"/>
-            <VirtualizedScrollPane fx:id="hostsEditorVsPane" prefWidth="600" prefHeight="420" layoutY="35">
-                <content>
-                    <InlineCssTextArea fx:id="area"/>
-                </content>
-            </VirtualizedScrollPane>
-            <SearchPopover fx:id="searchPopover" layoutY="40" prefWidth="450"/>
-        </AnchorPane>
+        <VBox alignment="CENTER_RIGHT">
+            <SearchBox fx:id="searchBox" BorderPane.alignment="CENTER"/>
+            <AnchorPane VBox.vgrow="ALWAYS">
+                <VirtualizedScrollPane fx:id="hostsEditorVsPane" styleClass="editor" AnchorPane.bottomAnchor="10.0"
+                                       AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
+                                       AnchorPane.topAnchor="10.0">
+                    <content>
+                        <StyleClassedTextArea fx:id="systemArea" styleClass="editor-area"/>
+                    </content>
+                </VirtualizedScrollPane>
+                <SearchPopover fx:id="searchPopover" styleClass="search-hosts" AnchorPane.bottomAnchor="60.0"
+                               AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="10.0"/>
+            </AnchorPane>
+        </VBox>
     </center>
     <bottom>
         <HBox>
-            <Label fx:id="messageLabel" id="messageLabel" alignment="BASELINE_LEFT"/>
-            <Label fx:id="errorMessageLabel" id="errorMessageLabel" alignment="BASELINE_RIGHT"/>
+            <Label id="messageLabel" fx:id="messageLabel" alignment="BASELINE_LEFT"/>
+            <Label id="errorMessageLabel" fx:id="errorMessageLabel" alignment="BASELINE_RIGHT"/>
         </HBox>
     </bottom>
 </BorderPane>

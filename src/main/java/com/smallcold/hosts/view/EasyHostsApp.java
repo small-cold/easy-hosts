@@ -116,11 +116,16 @@ public class EasyHostsApp extends Application {
         // initToolBar();
 
         root.setOnKeyReleased(event -> {
+            // 搜索
             if (event.isShortcutDown() && event.getCode() == KeyCode.F) {
-                mainController.rootKeyPressed(event);
+                mainController.activeSearch();
             }
             if (event.isShortcutDown() && event.isShiftDown() && event.getCode() == KeyCode.H) {
                 mainController.activeShowSysHosts();
+            }
+            // 保存
+            if (event.isShortcutDown() && event.getCode() == KeyCode.S) {
+                mainController.save();
             }
         });
     }
@@ -194,7 +199,7 @@ public class EasyHostsApp extends Application {
 
     private void initSysMenu() {
         menuBar = new MenuBar();
-        if (SystemUtil.CURRENT_OS == EnumOS.MacOS){
+        if (SystemUtil.CURRENT_OS == EnumOS.MacOS) {
             menuBar.setUseSystemMenuBar(true);
         }
         Menu fileMenu = new Menu(ResourceBundleUtil.getString("key.menu-file"));
@@ -326,7 +331,7 @@ public class EasyHostsApp extends Application {
         scene = new Scene(root, 720, 480, Color.BLACK);
         scene.getStylesheets().setAll("/css/HostsHelper.css");
         stage.setScene(scene);
-        // stage.setResizable(true);
+        stage.setResizable(true);
         stage.setTitle(ResourceBundleUtil.getString("key.app-title"));
         stage.show();
         initAdminPasswordDialog();

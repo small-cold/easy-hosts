@@ -9,8 +9,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
-/*
- * Created by smallcold on 2017/9/7.
+/**
+ * @author smallcold
+ * @date 2019年04月18日
  */
 public class SearchBox extends TextField implements ChangeListener<String> {
     private final Button clearButton = new Button();
@@ -38,12 +39,15 @@ public class SearchBox extends TextField implements ChangeListener<String> {
     @Override
     protected void layoutChildren() {
         super.layoutChildren();
-        if (clearButton.getParent() != this)
+        if (clearButton.getParent() != this) {
             getChildren().add(clearButton);
-        if (innerBackground.getParent() != this)
+        }
+        if (innerBackground.getParent() != this) {
             getChildren().add(0, innerBackground);
-        if (icon.getParent() != this)
+        }
+        if (icon.getParent() != this) {
             getChildren().add(icon);
+        }
         innerBackground.setLayoutX(0);
         innerBackground.setLayoutY(0);
         innerBackground.resize(getWidth(), getHeight());

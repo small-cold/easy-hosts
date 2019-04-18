@@ -12,9 +12,9 @@
     -fx-border-image-insets: -32 -37 -47 -37;
 }
 
-.popover.search-hosts .popover-frame {
+.popover .search-hosts .popover-frame {
     -fx-border-image-slice: 78 120 60 50 fill;
-    -fx-border-image-width: 78 120 60 50;
+    -fx-border-image-width: 78 60 60 50;
 }
 
 .popover-title {
@@ -148,6 +148,8 @@
     -fx-text-fill: #363636;
     -fx-background-radius: 15, 14;
     -fx-padding: 0 0 0 30;
+    -fx-min-width: 600;
+    -fx-min-height: 30;
 }
 
 .search-box:focused {
@@ -176,4 +178,19 @@
 
 .preference-btn {
     -fx-padding: 5 5 5 500;
+}
+
+/* text area */
+.editor {
+    -fx-padding: 10 10 10 10;
+    -fx-min-height: 450;
+    -fx-min-width: 600;
+}
+
+.file-tree {
+    -fx-padding: 10 10 10 10;
+}
+
+.editor-area {
+    -fx-background-color: #fff4dc;
 }

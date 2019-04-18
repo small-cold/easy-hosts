@@ -120,7 +120,7 @@ public class HostsCommand {
         if (StringUtils.isBlank(source)) {
             selectedIndex = 0;
         }
-        hostsOperator.replaceIP(ipList.get(selectedIndex), targetIp);
+        // hostsOperator.replaceIP(ipList.get(selectedIndex), targetIp);
         hostsOperator.flush();
     }
 
@@ -128,7 +128,7 @@ public class HostsCommand {
         HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator().init();
         List<HostsSearchResult> hostBeanList = hostsOperator.search(domain);
         for (HostsSearchResult hostBean : hostBeanList) {
-            logger.info(hostBean.getId() + ". " + hostBean.toString());
+            logger.info(hostBean.getLineNum() + ". " + hostBean.getLine());
         }
         logger.info("请输入要切换的IP或要启用的配置序号(默认为127.0.0.1):");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -137,10 +137,10 @@ public class HostsCommand {
             opt = IPDomainUtil.SELF_IP;
         }
         if (IPDomainUtil.isIp(opt)) {
-            hostsOperator.changeStatus(opt, domain, !disabled);
+            // hostsOperator.changeStatus(opt, domain, !disabled);
         } else if (opt.matches("[0-9]+")) {
             int indexSelected = Integer.parseInt(opt);
-            hostsOperator.enable(indexSelected, !disabled);
+            // hostsOperator.enable(indexSelected, !disabled);
         }
         hostsOperator.flush();
     }

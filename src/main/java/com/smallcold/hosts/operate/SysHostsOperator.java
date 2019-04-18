@@ -10,14 +10,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-/*
- * Created by smallcold on 2017/9/1.
+/**
+ * @author smallcold
+ * @date 2017/9/1
  */
 public class SysHostsOperator extends HostsOperator {
 
     public static SysHostsOperator instance;
 
-    public static SysHostsOperator getInstance(){
+    public static SysHostsOperator getInstance() {
         if (instance == null) {
             instance = new SysHostsOperator();
             instance.setName("当前配置");
@@ -25,7 +26,7 @@ public class SysHostsOperator extends HostsOperator {
         return instance;
     }
 
-    private SysHostsOperator(){
+    private SysHostsOperator() {
         super(Config.getSysHostsPath());
     }
 
@@ -42,17 +43,17 @@ public class SysHostsOperator extends HostsOperator {
             throw new PermissionIOException("需要管理员权限");
         }
         File cacheFile;
-        if (SystemUtil.CURRENT_OS == EnumOS.Windows){
+        if (SystemUtil.CURRENT_OS == EnumOS.Windows) {
             cacheFile = new File(SystemUtil.getSysHostsPath());
-        }else {
+        } else {
             cacheFile = new File(Config.getCacheFile(), "currentHost");
         }
         try (FileWriter fileWriter = new FileWriter(cacheFile)) {
-            for (HostBean hostBean : getHostBeanList()) {
-                fileWriter.write(hostBean.toString() + "\n");
+            for (String line : getLineList()) {
+                fileWriter.write(line + "\n");
             }
             //  copy to 系统目录
-            if (SystemUtil.CURRENT_OS != EnumOS.Windows){
+            if (SystemUtil.CURRENT_OS != EnumOS.Windows) {
                 SystemUtil.adminMove(cacheFile, new File(SystemUtil.getSysHostsPath()), Config.getAdminPassword());
             }
             // 清除系统缓存

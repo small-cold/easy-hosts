@@ -62,7 +62,6 @@ public class SearchPopover extends Popover {
 
     public SearchPopover() {
         super();
-        getStyleClass().add("search-hosts");
     }
 
     public void init(final SearchBox searchBox, MainController mainController) {
@@ -142,8 +141,9 @@ public class SearchPopover extends Popover {
             searchErrorTooltip = new Tooltip();
         }
         searchErrorTooltip.setText(message);
-        if (searchErrorTooltipHidder != null)
+        if (searchErrorTooltipHidder != null) {
             searchErrorTooltipHidder.stop();
+        }
         if (message != null) {
             Point2D toolTipPos = searchBox.localToScene(0, searchBox.getLayoutBounds().getHeight());
             double x = toolTipPos.getX() + searchBox.getScene().getX() + searchBox.getScene().getWindow().getX();

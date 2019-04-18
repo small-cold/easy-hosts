@@ -31,6 +31,7 @@
  */
 package com.smallcold.hosts.view;
 
+import com.smallcold.hosts.conf.ResourceBundleUtil;
 import com.smallcold.hosts.operate.HostsOperatorFactory;
 import com.smallcold.hosts.view.controller.HostsSearchResult;
 import com.smallcold.hosts.view.controller.MainController;
@@ -52,6 +53,8 @@ import javafx.scene.shape.Rectangle;
 
 /**
  * Popover page that displays a list of search results.
+ *
+ * @author smallcold
  */
 public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> implements Popover.Page {
     private Popover popover;
@@ -94,7 +97,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
 
     @Override
     public String getPageTitle() {
-        return "搜索结果([⇧+↵]快速切换)";
+        return ResourceBundleUtil.getString("key.search-title");
     }
 
     @Override
@@ -248,16 +251,16 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
                 title.setVisible(true);
                 icon.setVisible(true);
                 details.setVisible(true);
-                title.setText(result.getTitle());
-                if (result.getHostsOperator() == HostsOperatorFactory.getSystemHostsOperator()){
+                title.setText(result.getLine());
+                if (result.getHostsOperator() == HostsOperatorFactory.getSystemHostsOperator()) {
                     icon.getStyleClass().setAll("icon-system");
-                }else if (result.getHostsOperator() == HostsOperatorFactory.getCommonHostsOperator()){
+                } else if (result.getHostsOperator() == HostsOperatorFactory.getCommonHostsOperator()) {
                     icon.getStyleClass().setAll("icon-common");
-                }else {
+                } else {
                     icon.getStyleClass().setAll("icon");
                 }
                 icon.setText(result.getHostsOperator().getName());
-                details.setText(result.getDetail());
+                details.setText(result.getLine());
             }
         }
 
