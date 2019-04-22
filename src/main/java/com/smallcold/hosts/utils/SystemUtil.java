@@ -45,7 +45,7 @@ public class SystemUtil {
                 for (int i = 0; i < files.length; ++i) {
                     File tmp = new File(files[i] + "\\Windows");
                     if (tmp.exists()) {
-                        SYS_HOSTS_PATH = files[i] + "\\Windows\\System32\\drivers\\etc\\";
+                        SYS_HOSTS_PATH = files[i] + "\\Windows\\System32\\drivers\\etc\\hosts";
                     }
                 }
             } else if (CURRENT_OS == EnumOS.MacOS || CURRENT_OS == EnumOS.Linux) {

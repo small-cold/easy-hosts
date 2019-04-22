@@ -86,15 +86,9 @@ public class EasyHostsApp extends Application {
                 final double w = getWidth();
                 final double h = getHeight();
                 final double menuHeight = menuBar.prefHeight(w);
-                // final double toolBarHeight = toolBar.prefHeight(w);
                 if (menuBar != null) {
                     menuBar.resize(w, menuHeight);
                 }
-                // toolBar.resizeRelocate(0, menuHeight, w, toolBarHeight);
-                // homePane.setLayoutY(toolBarHeight + menuHeight + 5);
-                // homePane.resize(w, h - toolBarHeight);
-                // homePane.resize(w, h - toolBarHeight - menuHeight);
-                // homePane.resizeRelocate(0, toolBarHeight + menuHeight + 5, w, h - toolBarHeight - menuHeight);
                 if (preferencesController != null) {
                     preferencesController.getRoot().setLayoutX(0);
                     preferencesController.getRoot().setLayoutY(0);
@@ -102,10 +96,17 @@ public class EasyHostsApp extends Application {
                     preferencesController.getRoot().setPrefHeight(h);
                 }
                 if (mainController != null) {
-                    mainController.getRoot().setLayoutX(0);
-                    mainController.getRoot().setLayoutY(0);
-                    mainController.getRoot().setPrefWidth(w);
-                    mainController.getRoot().setPrefHeight(h);
+                    if (SystemUtil.CURRENT_OS == EnumOS.Windows) {
+                        mainController.getRoot().setLayoutX(0);
+                        mainController.getRoot().setLayoutY(menuHeight);
+                        mainController.getRoot().setPrefWidth(w);
+                        mainController.getRoot().setPrefHeight(h - menuHeight);
+                    }else {
+                        mainController.getRoot().setLayoutX(0);
+                        mainController.getRoot().setLayoutY(0);
+                        mainController.getRoot().setPrefWidth(w);
+                        mainController.getRoot().setPrefHeight(h);
+                    }
                 }
             }
         };

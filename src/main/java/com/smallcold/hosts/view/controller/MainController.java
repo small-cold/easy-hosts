@@ -12,10 +12,8 @@ import com.smallcold.hosts.view.properties.HostsOperatorProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -115,6 +113,9 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             DialogUtils.createExceptionDialog("加载Hosts文件异常", e);
         }
+        hostsFileTreeView.setCellFactory(param -> new CheckBoxTreeCell<>());
+
+
         activeShowSysHosts();
         hostsFileTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // 应该在这里调用
@@ -128,22 +129,25 @@ public class MainController implements Initializable {
     private void addTreeItem(TreeItem<HostsOperatorProperty> parentItem, HostsOperatorCategory hostsOperatorCategory) {
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getHostsOperatorList())) {
             for (HostsOperator hostsOperator : hostsOperatorCategory.getHostsOperatorList()) {
-                TreeItem<HostsOperatorProperty> treeItem = new TreeItem<>(new HostsOperatorProperty()
+                CheckBoxTreeItem<HostsOperatorProperty> treeItem = new CheckBoxTreeItem<>(new HostsOperatorProperty()
                         .setHostsOperator(hostsOperator));
+                treeItem.setSelected(hostsOperator.isSelected());
                 parentItem.getChildren().add(treeItem);
                 treeItemMap.put(hostsOperator, treeItem);
             }
         }
         if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getSubCategoryList())) {
             for (HostsOperatorCategory operatorCategory : hostsOperatorCategory.getSubCategoryList()) {
-                TreeItem<HostsOperatorProperty> subItem = new TreeItem<>(new HostsOperatorProperty()
+                CheckBoxTreeItem<HostsOperatorProperty> subItem = new CheckBoxTreeItem<>(new HostsOperatorProperty()
                         .setHostsOperatorCategory(operatorCategory));
+                subItem.setSelected(operatorCategory.isSelected());
                 subItem.setExpanded(true);
                 parentItem.getChildren().add(subItem);
                 addTreeItem(subItem, operatorCategory);
             }
         }
     }
+
 
     public void activeShowSysHosts() {
         hostsFileTreeView.getSelectionModel().select(sysHostsOperatorTreeItem);
@@ -202,15 +206,9 @@ public class MainController implements Initializable {
      */
     public void getToItem(HostsSearchResult result, boolean isSwitch) {
         // 如果切换
+        String line = result.getLine();
         if (isSwitch) {
-            // 页面切换到系统
-            // if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()) {
-            //     activeShowSysHosts();
-            // }
-            // 搜索结果不是系统的
-            if (!(result.getHostsOperator() instanceof SysHostsOperator)) {
-                // result.getHostsOperator()(.add(line);
-            }
+            line = result.getHostsOperator().switchLine(result.getLineNum());
         } else if (result.getHostsOperator() != getHostsOperator()) {
             // 激活tree
             hostsFileTreeView.getSelectionModel().select(treeItemMap.get(result.getHostsOperator()));
@@ -229,7 +227,8 @@ public class MainController implements Initializable {
         // 定位到
         Function<Integer, Integer> clamp = i -> Math.max(0, Math.min(i, textArea.getLength() - 1));
         textArea.showParagraphAtTop(clamp.apply(result.getLineNum()));
-        textArea.selectLine();
+        int anchor = textArea.getText().indexOf(line);
+        textArea.selectRange(anchor, anchor + line.length());
     }
 
     private void sysHostsSwitchTo(HostsOperator newHostsOperator) {

@@ -72,17 +72,17 @@ public class IPDomainUtil {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 3; i > 0; i--) {
-            sb.append(String.valueOf((longIp >> i * 8 & 0x000000FF)));
+            sb.append((longIp >> i * 8 & 0x000000FF));
             sb.append(".");
         }
-        sb.append(String.valueOf((longIp & 0x000000FF)));
+        sb.append((longIp & 0x000000FF));
         return sb.toString();
     }
 
     /**
      * ip格式字符串转长整型
      *
-     * @param strIp
+     * @param ipStr
      * @return
      */
     public static long ipToLong(String ipStr) {

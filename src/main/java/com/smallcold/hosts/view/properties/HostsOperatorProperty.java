@@ -4,7 +4,7 @@ import com.smallcold.hosts.operate.HostsOperator;
 import com.smallcold.hosts.operate.HostsOperatorCategory;
 import lombok.Getter;
 
-/*
+/**
  * Created by smallcold on 2017/9/5.
  */
 public class HostsOperatorProperty {

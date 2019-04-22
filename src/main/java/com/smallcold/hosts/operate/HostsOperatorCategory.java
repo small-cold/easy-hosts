@@ -7,8 +7,10 @@ import lombok.ToString;
 
 import java.util.List;
 
-/*
- * Created by smallcold on 2017/9/6.
+/**
+ *
+ * @author smallcold
+ * @date 2017/9/6
  */
 @Getter
 @Setter
@@ -18,6 +20,8 @@ public class HostsOperatorCategory {
     private int sort = 0;
 
     private String name = "";
+
+    private boolean isSelected = true;
 
     private List<HostsOperator> hostsOperatorList = Lists.newArrayList();
 

@@ -1,11 +1,13 @@
 package com.smallcold.hosts.operate;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.smallcold.hosts.utils.IPDomainUtil;
 import com.smallcold.hosts.view.controller.HostsSearchResult;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -42,6 +44,13 @@ public class HostsOperator {
      * 是否不可用
      */
     private boolean isDisable = false;
+
+    /**
+     * 是否选中
+     */
+    @Getter
+    @Setter
+    private boolean isSelected = true;
 
     public HostsOperator(String path) {
         this(new File(path));
@@ -112,7 +121,7 @@ public class HostsOperator {
      * @return
      */
     public List<HostsSearchResult> search(String key) {
-        if (StringUtils.isBlank(key)) {
+        if (StringUtils.isBlank(key) || CollectionUtils.isEmpty(getLineList())) {
             return Collections.emptyList();
         }
         key = key.toLowerCase();
@@ -147,8 +156,7 @@ public class HostsOperator {
     /**
      * 切换配置到
      *
-     * @param otherHostsOperator
-     * @param isBackup
+     * @param hostsOperators 待操作文件
      */
     public void switchTo(HostsOperator... hostsOperators) {
         if (hostsOperators == null) {
@@ -220,5 +228,28 @@ public class HostsOperator {
             return;
         }
         getLineList().add(line);
+    }
+
+    public String switchLine(int lineNum) {
+        // 有IP 有域名
+        String line = getLineList().get(lineNum);
+        if (!line.startsWith("#")){
+            getLineList().set(lineNum, "#" + line);
+            isChanged = true;
+        }else {
+            List<String> hostList = IPDomainUtil.getDomainList(line);
+            if (hostList.isEmpty()){
+                return line;
+            }
+            String ipStr = IPDomainUtil.getIPText(line);
+            if (StringUtils.isBlank(ipStr)){
+                return line;
+            }
+            String newLine = ipStr + "\t" + Joiner.on(" ").join(hostList);
+            getLineList().set(lineNum, newLine);
+            isChanged = true;
+            return newLine;
+        }
+        return line;
     }
 }
