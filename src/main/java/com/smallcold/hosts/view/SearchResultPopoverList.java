@@ -143,9 +143,6 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
 
         private SearchResultListCell() {
             super();
-            //System.out.println("CREATED TimeSlot CELL " + (cellIndex));
-            // we don't need any of the labeled functionality of the default cell skin, so we replace skin with our own
-            // in this case using this same class as it saves memory. This skin is very simple its just a HBox container
             setSkin(this);
             getStyleClass().setAll("search-result-cell");
             title.getStyleClass().setAll("title");
@@ -154,13 +151,6 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
             topLine.setFill(Color.web("#dfdfdf"));
             getChildren().addAll(arrow, title, icon, details, topLine);
             setOnMouseClicked(this);
-
-            // listen to changes of this cell being added and removed from list
-            // and when it or its parent is moved. If any of those things change
-            // then update the iconPane's layout. requestLayout() will be called
-            // many times for any change of cell layout in the list but that
-            // dosn't matter as they will all be batched up by layout machanisim
-            // and iconPane.layoutChildren() will only be called once per frame.
         }
 
         @Override
@@ -241,7 +231,8 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
         @Override
         protected void updateItem(HostsSearchResult result, boolean empty) {
             super.updateItem(result, empty);
-            if (result == null) { // empty item
+            // empty item
+            if (result == null) {
                 arrow.setVisible(false);
                 icon.setVisible(false);
                 title.setVisible(false);
@@ -251,7 +242,7 @@ public class SearchResultPopoverList extends PopoverTreeList<HostsSearchResult> 
                 title.setVisible(true);
                 icon.setVisible(true);
                 details.setVisible(true);
-                title.setText(result.getLine());
+                title.setText(result.getLineNum() + "");
                 if (result.getHostsOperator() == HostsOperatorFactory.getSystemHostsOperator()) {
                     icon.getStyleClass().setAll("icon-system");
                 } else if (result.getHostsOperator() == HostsOperatorFactory.getCommonHostsOperator()) {

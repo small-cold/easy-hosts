@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.smallcold.hosts.operate.HostsOperator;
 import com.smallcold.hosts.operate.HostsOperatorCategory;
 import com.smallcold.hosts.operate.HostsOperatorFactory;
+import com.smallcold.hosts.operate.SysHostsOperator;
 import com.smallcold.hosts.view.DialogUtils;
 import com.smallcold.hosts.view.SearchBox;
 import com.smallcold.hosts.view.SearchPopover;
@@ -52,7 +53,7 @@ public class MainController implements Initializable {
     @FXML
     private Label errorMessageLabel;
     @FXML
-    private StyleClassedTextArea systemArea;
+    private StyleClassedTextArea textArea;
     @FXML
     private VirtualizedScrollPane<StyleClassedTextArea> hostsEditorVsPane;
 
@@ -95,8 +96,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // add line numbers to the left of area
-        systemArea.setParagraphGraphicFactory(LineNumberFactory.get(systemArea));
+        // add line numbers to the left of textArea
+        textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
         refreshData();
         hostsFileTreeView.setShowRoot(false);
         rootTreeItem.setExpanded(true);
@@ -176,10 +177,12 @@ public class MainController implements Initializable {
             return;
         }
         getHostsOperator().init();
-        systemArea.clear();
+        textArea.clear();
         if (CollectionUtils.isNotEmpty(getHostsOperator().getLineList())) {
-            getHostsOperator().getLineList().forEach(line -> systemArea.appendText(line + "\n"));
+            getHostsOperator().getLineList().forEach(line -> textArea.appendText(line + "\n"));
         }
+        textArea.getUndoManager().forgetHistory();
+        textArea.setEditable(!(getHostsOperator() instanceof SysHostsOperator));
     }
 
     public Map<HostsOperator, List<HostsSearchResult>> search(String key) {
@@ -201,13 +204,12 @@ public class MainController implements Initializable {
         // 如果切换
         if (isSwitch) {
             // 页面切换到系统
-            if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()) {
-                activeShowSysHosts();
-            }
+            // if (getHostsOperator() != sysHostsOperatorTreeItem.getValue().getHostsOperator()) {
+            //     activeShowSysHosts();
+            // }
             // 搜索结果不是系统的
-            if (result.getHostsOperator() != getHostsOperator()) {
-                String line = result.getHostsOperator().get(result.getLineNum());
-                getHostsOperator().add(line);
+            if (!(result.getHostsOperator() instanceof SysHostsOperator)) {
+                // result.getHostsOperator()(.add(line);
             }
         } else if (result.getHostsOperator() != getHostsOperator()) {
             // 激活tree
@@ -225,8 +227,9 @@ public class MainController implements Initializable {
             }
         }
         // 定位到
-        Function<Integer, Integer> clamp = i -> Math.max(0, Math.min(i, systemArea.getLength() - 1));
-        systemArea.showParagraphAtTop(clamp.apply(result.getLineNum()));
+        Function<Integer, Integer> clamp = i -> Math.max(0, Math.min(i, textArea.getLength() - 1));
+        textArea.showParagraphAtTop(clamp.apply(result.getLineNum()));
+        textArea.selectLine();
     }
 
     private void sysHostsSwitchTo(HostsOperator newHostsOperator) {

@@ -116,20 +116,19 @@ public class HostsOperator {
             return Collections.emptyList();
         }
         key = key.toLowerCase();
-        List<HostsSearchResult> matchHostBeanList = Lists.newArrayList();
+        List<HostsSearchResult> searchResultList = Lists.newArrayList();
         int index = 0;
         for (String line : getLineList()) {
-            if (StringUtils.isBlank(line)) {
-                continue;
-            }
-            int findIndex = line.indexOf(key);
-            if (findIndex >= 0) {
-                HostsSearchResult hostsSearchResult = new HostsSearchResult(this, index, line, findIndex);
-                matchHostBeanList.add(hostsSearchResult);
+            if (StringUtils.isNotBlank(line)) {
+                int findIndex = line.indexOf(key);
+                if (findIndex >= 0) {
+                    HostsSearchResult hostsSearchResult = new HostsSearchResult(this, index, line, findIndex);
+                    searchResultList.add(hostsSearchResult);
+                }
             }
             index++;
         }
-        return matchHostBeanList;
+        return searchResultList;
     }
 
     /**

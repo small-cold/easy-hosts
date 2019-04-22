@@ -251,8 +251,9 @@ public class Popover extends Region implements EventHandler<Event> {
         }
 
         int buttonHeight = (int) (leftButton.prefHeight(-1));
-        if (buttonHeight < 30)
+        if (buttonHeight < 30) {
             buttonHeight = 30;
+        }
         final int buttonTop = (int) ((top - buttonHeight) / 2d);
         final int leftButtonWidth = (int) snapSize(leftButton.prefWidth(-1));
         leftButton.resizeRelocate(left, buttonTop, leftButtonWidth, buttonHeight);
@@ -421,8 +422,9 @@ public class Popover extends Region implements EventHandler<Event> {
                 fadeAnimation = null;
                 setVisible(false);
                 clearPages();
-                if (onHideCallback != null)
+                if (onHideCallback != null) {
                     onHideCallback.run();
+                }
             });
 
             ScaleTransition scale = new ScaleTransition(Duration.seconds(.1), this);

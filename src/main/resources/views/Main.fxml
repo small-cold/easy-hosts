@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <?import org.fxmisc.richtext.StyleClassedTextArea?>
-<BorderPane fx:id="root" onKeyPressed="#rootKeyPressed" stylesheets="@/css/HostsHelper.css"
+<BorderPane fx:id="root" stylesheets="@/css/HostsHelper.css"
             xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.smallcold.hosts.view.controller.MainController">
     <left>
@@ -29,7 +29,7 @@
                                        AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
                                        AnchorPane.topAnchor="10.0">
                     <content>
-                        <StyleClassedTextArea fx:id="systemArea" styleClass="editor-area"/>
+                        <StyleClassedTextArea fx:id="textArea" styleClass="editor-area"/>
                     </content>
                 </VirtualizedScrollPane>
                 <SearchPopover fx:id="searchPopover" styleClass="search-hosts" AnchorPane.bottomAnchor="60.0"
