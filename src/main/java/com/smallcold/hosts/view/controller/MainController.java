@@ -30,6 +30,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -240,7 +242,7 @@ public class MainController implements Initializable {
         if (HostsOperatorFactory.getSystemHostsOperator().isChanged()) {
             try {
                 HostsOperatorFactory.getSystemHostsOperator().flush();
-                messageLabel.setText("当前使用【" + newHostsOperator.getName() + "】");
+                showMsg("当前使用【" + newHostsOperator.getName() + "】");
                 activeShowSysHosts();
             } catch (IOException e) {
                 // FIXME 应该直接调用undo 方法
@@ -272,9 +274,40 @@ public class MainController implements Initializable {
 
     public void save() {
         try {
+            getHostsOperator().load(textArea.getText());
             getHostsOperator().flush();
+            showMsg("保存成功【" + getHostsOperator().getName() + "】");
+            // 如果该文件是启用状态，切换系统hosts
+            if (getHostsOperator().isSelected()) {
+                HostsOperator hostsOperator = HostsOperatorFactory.getSystemHostsOperator();
+                List<HostsOperator> selectedHostsOperatorList = HostsOperatorFactory.getSelectedHostsOperatorList();
+                selectedHostsOperatorList.add(HostsOperatorFactory.getCommonHostsOperator());
+                hostsOperator.switchTo(selectedHostsOperatorList);
+                if (HostsOperatorFactory.getSystemHostsOperator().isChanged()) {
+                    try {
+                        HostsOperatorFactory.getSystemHostsOperator().flush();
+                        showMsg("更新系统Hosts完成");
+                        activeShowSysHosts();
+                    } catch (IOException e) {
+                        // FIXME 应该直接调用undo 方法
+                        showMsg("更新系统Hosts失败【" + e.getMessage() + "】");
+                        hostsOperator.init();
+                        getCallbackObjectProperty().getValue().call(e);
+                    }
+                }
+            }
         } catch (IOException e) {
-            errorMessageLabel.setText("保存异常" + e.getMessage());
+            showErrorMsg("保存异常" + e.getMessage());
         }
+    }
+
+    public void showErrorMsg(String msg) {
+        errorMessageLabel.setText(msg + " " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        messageLabel.setText("");
+    }
+
+    public void showMsg(String msg) {
+        messageLabel.setText(msg + " " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        errorMessageLabel.setText("");
     }
 }

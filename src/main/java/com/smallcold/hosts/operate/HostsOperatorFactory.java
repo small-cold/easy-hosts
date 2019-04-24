@@ -3,6 +3,7 @@ package com.smallcold.hosts.operate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.smallcold.hosts.conf.Config;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -10,9 +11,11 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-/*
- * Created by smallcold on 2017/9/3.
+/**
+ * @author smallcold
+ * @date 2017/9/3
  */
 public class HostsOperatorFactory {
 
@@ -20,7 +23,7 @@ public class HostsOperatorFactory {
 
     private static Map<File, HostsOperator> hostsOperatorMap = Maps.newHashMap();
 
-    public static HostsOperator getSystemHostsOperator(){
+    public static HostsOperator getSystemHostsOperator() {
         return SysHostsOperator.getInstance();
     }
 
@@ -68,5 +71,22 @@ public class HostsOperatorFactory {
             comHostsOperator.init();
         }
         return comHostsOperator;
+    }
+
+    public static List<HostsOperator> getSelectedHostsOperatorList() throws IOException {
+        return getHostsOperatorList(getUserHostsOperatorCategory())
+                .stream().filter(HostsOperator::isSelected)
+                .collect(Collectors.toList());
+    }
+
+    public static List<HostsOperator> getHostsOperatorList(HostsOperatorCategory hostsOperatorCategory) {
+        List<HostsOperator> hostsOperatorList = Lists.newArrayList();
+        hostsOperatorList.addAll(hostsOperatorCategory.getHostsOperatorList());
+        if (CollectionUtils.isNotEmpty(hostsOperatorCategory.getSubCategoryList())) {
+            for (HostsOperatorCategory subCategory : hostsOperatorCategory.getSubCategoryList()) {
+                hostsOperatorList.addAll(getHostsOperatorList(subCategory));
+            }
+        }
+        return hostsOperatorList;
     }
 }

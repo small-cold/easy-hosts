@@ -150,6 +150,7 @@ public class HostsOperator {
             return false;
         }
         lineList = Lists.newArrayList(text.split("\n"));
+        isChanged = true;
         return true;
     }
 
@@ -162,19 +163,21 @@ public class HostsOperator {
         if (hostsOperators == null) {
             return;
         }
-        Set<String> hostSet = new LinkedHashSet<>();
-        for (HostsOperator hostsOperator : hostsOperators) {
-            if (hostsOperator == null) {
-                continue;
-            }
-            for (String line : hostsOperator.getLineList()) {
-                if (!line.startsWith("#") && hostSet.contains(line)) {
-                    continue;
-                }
-                hostSet.add(line);
-            }
+        switchTo(Lists.newArrayList(hostsOperators));
+    }
+
+    public void switchTo(List<HostsOperator> selectedHostsOperatorList) {
+        if (CollectionUtils.isEmpty(selectedHostsOperatorList)) {
+            return;
         }
+        Set<String> hostSet = new LinkedHashSet<>();
+        selectedHostsOperatorList.stream()
+                .filter(java.util.Objects::nonNull)
+                .flatMap(hostsOperator -> hostsOperator.getLineList().stream())
+                .filter(line -> line.startsWith("#") || !hostSet.contains(line))
+                .forEach(hostSet::add);
         setLineList(Lists.newArrayList(hostSet));
+        isChanged = true;
     }
 
     @Override
@@ -233,16 +236,16 @@ public class HostsOperator {
     public String switchLine(int lineNum) {
         // 有IP 有域名
         String line = getLineList().get(lineNum);
-        if (!line.startsWith("#")){
-            getLineList().set(lineNum, "#" + line);
+        if (!line.startsWith("#")) {
+            getLineList().set(lineNum, "# " + line);
             isChanged = true;
-        }else {
+        } else {
             List<String> hostList = IPDomainUtil.getDomainList(line);
-            if (hostList.isEmpty()){
+            if (hostList.isEmpty()) {
                 return line;
             }
             String ipStr = IPDomainUtil.getIPText(line);
-            if (StringUtils.isBlank(ipStr)){
+            if (StringUtils.isBlank(ipStr)) {
                 return line;
             }
             String newLine = ipStr + "\t" + Joiner.on(" ").join(hostList);
